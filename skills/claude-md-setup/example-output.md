@@ -32,6 +32,8 @@ Internal API for the Meridian customer portal. Handles authentication, account m
 | `prisma/` | Schema and migrations |
 | `config/` | Environment-specific config. Loaded via `config/index.ts`, not dotenv directly |
 | `scripts/` | One-off and seed scripts. `scripts/seed-dev.ts` sets up local dev data |
+| `.claude/context/` | Distilled project conventions and durable design choices. Consult these files when working on related areas; they outrank general defaults. |
+| `.claude/changes/` | In-flight change-specs. When working on a feature with a spec here, read only that spec. Other specs are either for unrelated work or pending distillation. |
 
 ## Commands
 

@@ -8,6 +8,15 @@ This template is written verbatim into `.claude/changes/CLAUDE.md` the first tim
 
 This folder holds ephemeral change-specs — one per substantial in-flight change. Each file is the contract that drives implementation: intent, acceptance criteria, verification approach.
 
+## How to read this folder
+
+Do not bulk-read this folder. At any moment, at most one spec here is the contract for the work currently in progress; every other spec is either for unrelated work or stale and pending distillation.
+
+When entering this folder:
+- If there is a spec named after the change you are working on, read only that file.
+- If you are not actively working on a spec-driven change, do not read any spec files — they will only add noise to your context.
+- Permanent project knowledge does not live here. Look in `.claude/context/` for that.
+
 ## What belongs here
 
 - One markdown file per change-spec, named in kebab-case (`rate-limiting.md`, `oauth-google.md`)

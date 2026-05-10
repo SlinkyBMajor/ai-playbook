@@ -58,6 +58,15 @@ Propose a directory index based on the folder structure. Ask the developer:
 
 Keep the index to top-level directories plus a few important subdirectories. Not a file tree.
 
+Always append these two playbook-managed entries at the end of the directory index, even if the folders do not yet exist on disk. They are created lazily when `/playbook:distil` and `/playbook:spec-workflow` first run, and listing them up front gives the agent a path to discover the distilled context once it appears:
+
+| Path | What's there |
+|------|-------------|
+| `.claude/context/` | Distilled project conventions and durable design choices. Consult these files when working on related areas; they outrank general defaults. |
+| `.claude/changes/` | In-flight change-specs. When working on a feature with a spec here, read only that spec. Other specs are either for unrelated work or pending distillation. |
+
+Mention to the developer that these entries are added by convention, not because the folders necessarily exist yet, and ask if they want to keep them. Default to keeping unless the developer opts out.
+
 **Section 4: Commands**
 Read the project's script definitions (package.json scripts, Makefile targets, etc.). Ask:
 - Are any of these non-obvious? (e.g., needs a running database, requires a specific env file)
@@ -119,6 +128,8 @@ One section at a time. Same pacing as the create flow.
 
 If the file is missing sections that should exist (e.g., no Gotchas but the developer has some), propose adding them.
 If the file has sections that don't belong (e.g., a "Future plans" section), propose removing them.
+
+When walking through the directory index specifically, check whether `.claude/context/` and `.claude/changes/` are listed. If not, propose adding them with the standard playbook descriptions (see the create flow's Section 3 for exact wording). These entries make the playbook's distilled context discoverable to agents working anywhere in the project, so an existing CLAUDE.md written before the playbook landed should be brought up to date.
 
 ### Phase 3: Self-review
 
