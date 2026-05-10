@@ -37,13 +37,15 @@ If a `CLAUDE.md` already exists, the same skill switches into review-and-update 
 
 ### Doing substantial work — the spec path
 
+You can describe the work in plain language — *"let's add rate limiting to the API"*, *"I want to build a new auth flow"*, *"help me refactor the payments module"* — and the agent will recognise the scope and offer to enter the spec workflow. Or invoke it directly:
+
 ```
 /ai-playbook:spec-workflow
 ```
 
-The skill enters plan mode and interviews you thoroughly — slower than the default pace, surfacing acceptance criteria, dependencies, and out-of-scope before code gets written. When you approve the plan, a hook fires that asks the agent to transform it into a seven-section change-spec at `.claude/changes/<name>.md`. You review and approve the spec. Implementation follows. The agent verifies its work against the acceptance criteria when it thinks the work is done.
+Either way, the skill enters plan mode and interviews you thoroughly — slower than the default pace, surfacing acceptance criteria, dependencies, and out-of-scope before code gets written. When you approve the plan, a hook fires that asks the agent to transform it into a seven-section change-spec at `.claude/changes/<name>.md`. You review and approve the spec. Implementation follows. The agent verifies its work against the acceptance criteria when it thinks the work is done.
 
-If the work is small enough to do directly, skip this skill — the playbook is explicit that the direct path exists for a reason.
+The skill confirms scope as its first phase, so if the agent triggers it on borderline-substantial work you can redirect with one sentence ("just do it directly"). If you know the work is small to begin with, skip the skill entirely — the playbook is explicit that the direct path exists for a reason.
 
 ### Doing small work — the direct path
 
@@ -68,7 +70,7 @@ After a successful run, the skill clears the pending-distillation sentinel so th
 | Command | When to use | Invocation |
 |---|---|---|
 | `/ai-playbook:claude-md-setup` | Project has no `CLAUDE.md`, or the existing one needs review | User or agent |
-| `/ai-playbook:spec-workflow` | Work touches multiple files, introduces a new pattern, or has acceptance criteria you can't hold in your head | User only |
+| `/ai-playbook:spec-workflow` | Work touches multiple files, introduces a new pattern, or has acceptance criteria you can't hold in your head | User or agent |
 | `/ai-playbook:distil` | Recent changes may have produced durable knowledge worth capturing | User only |
 
 ## Hooks

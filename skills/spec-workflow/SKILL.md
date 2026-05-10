@@ -1,8 +1,7 @@
 ---
 name: spec-workflow
 description: Drive substantial work through plan mode and a written change-spec, then implement against it
-when_to_use: When the developer is starting work that touches multiple files, introduces a new pattern, or has acceptance criteria they can't hold in their head. Not for one-line fixes or contained tweaks — those go through the direct path without a spec.
-disable-model-invocation: true
+when_to_use: When the developer is starting substantial work — adding a feature, building or implementing something new, refactoring across multiple files, or anything with acceptance criteria they can't hold in their head. Trigger on phrases like "let's add", "I want to build", "we need to implement", "help me refactor", or any request describing scope that sounds like more than a single-file change. Not for one-line fixes, typos, config tweaks, or contained edits — those go through the direct path without a spec. Phase 1 of the skill confirms scope before entering plan mode, so it is safe to trigger on borderline cases; the developer can redirect if they want the direct path instead.
 allowed-tools: Bash(ls *) Bash(test *) Bash(mkdir *) Bash(date *) Read Edit Write
 hooks:
   PostToolUse:
