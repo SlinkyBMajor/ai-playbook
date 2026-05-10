@@ -86,7 +86,7 @@ If verification reveals the criteria were wrong (e.g. a missed edge case), that'
 
 Once the work is verified, the change-spec has done its job. Tell the developer:
 
-> The work is verified against the acceptance criteria. Run `/ai-playbook:distil` when you're ready to capture any durable knowledge from this change into the project's permanent context. After distillation, this change-spec can be removed.
+> The work is verified against the acceptance criteria. Run `/playbook:distil` when you're ready to capture any durable knowledge from this change into the project's permanent context. After distillation, this change-spec can be removed.
 
 Do not run distillation yourself, and do not delete the change-spec. Both are explicit developer actions.
 

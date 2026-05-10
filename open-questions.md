@@ -8,7 +8,7 @@ This file is for plugin maintainers, not consumers. Excluded from distribution v
 
 **Status:** Soft sentinel pattern is implemented. Open question is whether to escalate.
 
-**Current mechanism.** A PostToolUse hook on `Write|Edit|MultiEdit` writes a per-project sentinel at `.claude/.ai-playbook/distillation-pending`. A UserPromptSubmit hook reads the sentinel and injects an `additionalContext` reminder telling the agent to surface `/ai-playbook:distil` when the developer's current message indicates work is wrapping up. `/distil` clears the sentinel in its final phase. See the Gotcha in [CLAUDE.md](CLAUDE.md) for the full pattern.
+**Current mechanism.** A PostToolUse hook on `Write|Edit|MultiEdit` writes a per-project sentinel at `.claude/.playbook/distillation-pending`. A UserPromptSubmit hook reads the sentinel and injects an `additionalContext` reminder telling the agent to surface `/playbook:distil` when the developer's current message indicates work is wrapping up. `/distil` clears the sentinel in its final phase. See the Gotcha in [CLAUDE.md](CLAUDE.md) for the full pattern.
 
 **Why it's not stronger.** Hook outputs cannot invoke a skill, slash command, or tool. The available primitives are `additionalContext` injection and `decision: "block"`. We chose injection because:
 

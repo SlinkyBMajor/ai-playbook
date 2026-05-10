@@ -1,5 +1,5 @@
 {
-  "name": "ai-playbook",
+  "name": "playbook",
   "version": "0.1.0",
   "description": "Consultancy playbook for AI-assisted development. Automates CLAUDE.md setup, spec-driven workflows, and context distillation.",
   "author": {

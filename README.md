@@ -7,10 +7,10 @@ The plugin contains three skills, three plugin-level hooks, and an optional bund
 ## Installation
 
 ```
-claude /plugin install github.com/Axakon/ai-playbook
+claude /plugin install github.com/SlinkyBMajor/ai-playbook
 ```
 
-Skills are namespaced as `/ai-playbook:<skill>` to avoid conflicts with other plugins.
+The repo is named `ai-playbook`, but the plugin registers itself in Claude Code as `playbook`, so all commands are namespaced as `/playbook:<skill>`.
 
 ## Usage guide
 
@@ -28,7 +28,7 @@ This is what keeps the permanent context small and current. Specs don't accumula
 ### Day one — set up the project
 
 ```
-/ai-playbook:claude-md-setup
+/playbook:claude-md-setup
 ```
 
 Walks you through five questions one at a time: what the project is, the stack, where things live, commands, and gotchas. The skill reads the repo first and only asks about what it can't infer. Output is a concise `CLAUDE.md` at the repo root that the agent loads on every future session.
@@ -40,7 +40,7 @@ If a `CLAUDE.md` already exists, the same skill switches into review-and-update 
 You can describe the work in plain language — *"let's add rate limiting to the API"*, *"I want to build a new auth flow"*, *"help me refactor the payments module"* — and the agent will recognise the scope and offer to enter the spec workflow. Or invoke it directly:
 
 ```
-/ai-playbook:spec-workflow
+/playbook:spec-workflow
 ```
 
 Either way, the skill enters plan mode and interviews you thoroughly — slower than the default pace, surfacing acceptance criteria, dependencies, and out-of-scope before code gets written. When you approve the plan, a hook fires that asks the agent to transform it into a seven-section change-spec at `.claude/changes/<name>.md`. You review and approve the spec. Implementation follows. The agent verifies its work against the acceptance criteria when it thinks the work is done.
@@ -51,12 +51,12 @@ The skill confirms scope as its first phase, so if the agent triggers it on bord
 
 Just edit. Use Claude however you usually do.
 
-The plugin still helps you here. After every `Write`, `Edit`, or `MultiEdit` in your project, a `PostToolUse` hook marks the project as having pending distillation candidates. On your next prompt, the agent receives a soft reminder: if your message reads as "wrapping up", surface `/ai-playbook:distil` as the next step. The reminder doesn't fire distillation automatically — it just makes sure durable knowledge isn't silently slipping past.
+The plugin still helps you here. After every `Write`, `Edit`, or `MultiEdit` in your project, a `PostToolUse` hook marks the project as having pending distillation candidates. On your next prompt, the agent receives a soft reminder: if your message reads as "wrapping up", surface `/playbook:distil` as the next step. The reminder doesn't fire distillation automatically — it just makes sure durable knowledge isn't silently slipping past.
 
 ### Closing the loop — distillation
 
 ```
-/ai-playbook:distil
+/playbook:distil
 ```
 
 Reads the recent changes (uncommitted diff first, recent commits if the tree is clean), evaluates them against five criteria — new conventions, security boundaries, durable design choices, non-obvious gotchas, corrections to existing context — and proposes updates to either `CLAUDE.md` or a file in `.claude/context/`. You're asked where each addition should land. Nothing is written until you approve.
@@ -69,9 +69,9 @@ After a successful run, the skill clears the pending-distillation sentinel so th
 
 | Command | When to use | Invocation |
 |---|---|---|
-| `/ai-playbook:claude-md-setup` | Project has no `CLAUDE.md`, or the existing one needs review | User or agent |
-| `/ai-playbook:spec-workflow` | Work touches multiple files, introduces a new pattern, or has acceptance criteria you can't hold in your head | User or agent |
-| `/ai-playbook:distil` | Recent changes may have produced durable knowledge worth capturing | User only |
+| `/playbook:claude-md-setup` | Project has no `CLAUDE.md`, or the existing one needs review | User or agent |
+| `/playbook:spec-workflow` | Work touches multiple files, introduces a new pattern, or has acceptance criteria you can't hold in your head | User or agent |
+| `/playbook:distil` | Recent changes may have produced durable knowledge worth capturing | User only |
 
 ## Hooks
 
@@ -80,7 +80,7 @@ The plugin installs three hooks that run automatically:
 | Event | Behaviour |
 |---|---|
 | `SessionStart` | Injects an instruction telling the agent to use Context7 for up-to-date library docs when the MCP server is enabled. Harmless when disabled. |
-| `PostToolUse` on `Write\|Edit\|MultiEdit` | Touches `.claude/.ai-playbook/distillation-pending` so the next user prompt carries a distillation reminder. |
+| `PostToolUse` on `Write\|Edit\|MultiEdit` | Touches `.claude/.playbook/distillation-pending` so the next user prompt carries a distillation reminder. |
 | `UserPromptSubmit` | Reads the sentinel; if present, injects the reminder text into the agent's context. |
 
 The `spec-workflow` skill also installs a skill-scoped `PostToolUse` hook on `ExitPlanMode` that fires only while that skill is running.
@@ -92,7 +92,7 @@ The `spec-workflow` skill also installs a skill-scoped `PostToolUse` hook on `Ex
 | `CLAUDE.md` | `claude-md-setup` | Root context file loaded on every session |
 | `.claude/context/` | `distil` (lazy) | Permanent, distilled knowledge — small files scoped to one area each |
 | `.claude/changes/` | `spec-workflow` (lazy) | Ephemeral change-specs; removed after distillation |
-| `.claude/.ai-playbook/distillation-pending` | PostToolUse hook | Sentinel for the soft auto-trigger; the directory is self-gitignored |
+| `.claude/.playbook/distillation-pending` | PostToolUse hook | Sentinel for the soft auto-trigger; the directory is self-gitignored |
 
 `.claude/context/` and `.claude/changes/` each carry their own slim per-folder `CLAUDE.md` describing what belongs there.
 

@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-This file is for agents working on the `ai-playbook` plugin itself. It is excluded from plugin distribution via `.gitattributes`. Per the Claude Code docs, a CLAUDE.md at a plugin's root is not loaded as project context for plugin consumers — plugins contribute context through skills only.
+This file is for agents working on the `playbook` plugin itself (repo: `ai-playbook`). It is excluded from plugin distribution via `.gitattributes`. Per the Claude Code docs, a CLAUDE.md at a plugin's root is not loaded as project context for plugin consumers — plugins contribute context through skills only.
 
 ## What is this
 
-Source repository for the `ai-playbook` Claude Code plugin: a consultancy playbook for AI-assisted development. The plugin ships three skills (`claude-md-setup`, `distil`, `spec-workflow`) plus shared instructions, hooks, and a bundled MCP server.
+Source repository for the `playbook` Claude Code plugin (repo name: `ai-playbook`): a consultancy playbook for AI-assisted development. The plugin ships three skills (`claude-md-setup`, `distil`, `spec-workflow`) plus shared instructions, hooks, and a bundled MCP server.
 
 The original design intent lives in `ai-playbook-research.md` at the repo root.
 
@@ -34,7 +34,7 @@ The original design intent lives in `ai-playbook-research.md` at the repo root.
 No build or test commands. To verify changes end-to-end:
 
 - Install: `claude /plugin install <path-to-this-repo>` in a test project
-- Invoke a skill via its namespaced slash command: `/ai-playbook:<skill-name>`
+- Invoke a skill via its namespaced slash command: `/playbook:<skill-name>`
 - Reload after changes: re-running `/plugin install` picks up the new version
 
 ## Gotchas
@@ -49,4 +49,4 @@ No build or test commands. To verify changes end-to-end:
 
 - **The plugin is content-only.** No code is compiled or tested. The "verification" of changes is manual end-to-end invocation. There is no CI to catch a broken hook script or a malformed `plugin.json` — broken changes will only surface when a developer installs the plugin.
 
-- **The `/distil` auto-trigger is a sentinel pattern, not a forced invocation.** No hook output field invokes a skill, so `/distil` cannot be called directly by the plugin. Instead, `set-distillation-sentinel.sh` (PostToolUse) writes `.claude/.ai-playbook/distillation-pending` after each Write/Edit/MultiEdit, and `check-distillation-sentinel.sh` (UserPromptSubmit) reads it to inject a reminder via `additionalContext`. The agent is told to surface `/ai-playbook:distil` only when the developer's current message reads as "wrapping up". `/distil` clears the sentinel as its final phase. The state directory is self-gitignored. Past attempts to use the `Stop` hook for this failed because Stop cannot inject `additionalContext` and cannot invoke skills — see [open-questions.md](open-questions.md) for the trade-space.
+- **The `/distil` auto-trigger is a sentinel pattern, not a forced invocation.** No hook output field invokes a skill, so `/distil` cannot be called directly by the plugin. Instead, `set-distillation-sentinel.sh` (PostToolUse) writes `.claude/.playbook/distillation-pending` after each Write/Edit/MultiEdit, and `check-distillation-sentinel.sh` (UserPromptSubmit) reads it to inject a reminder via `additionalContext`. The agent is told to surface `/playbook:distil` only when the developer's current message reads as "wrapping up". `/distil` clears the sentinel as its final phase. The state directory is self-gitignored. Past attempts to use the `Stop` hook for this failed because Stop cannot inject `additionalContext` and cannot invoke skills — see [open-questions.md](open-questions.md) for the trade-space.

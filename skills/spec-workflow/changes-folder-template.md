@@ -11,7 +11,7 @@ This folder holds ephemeral change-specs — one per substantial in-flight chang
 ## What belongs here
 
 - One markdown file per change-spec, named in kebab-case (`rate-limiting.md`, `oauth-google.md`)
-- Files produced by the `/ai-playbook:spec-workflow` skill from an approved plan
+- Files produced by the `/playbook:spec-workflow` skill from an approved plan
 - Active, in-flight specs only
 
 ## What does not belong here
@@ -22,4 +22,4 @@ This folder holds ephemeral change-specs — one per substantial in-flight chang
 
 ## Lifecycle
 
-A change-spec is created when a plan is approved, drives the implementation, and is removed once the durable knowledge has been captured by `/ai-playbook:distil`. If a spec lingers here long after its change has shipped, it should be reviewed and either distilled or deleted.
+A change-spec is created when a plan is approved, drives the implementation, and is removed once the durable knowledge has been captured by `/playbook:distil`. If a spec lingers here long after its change has shipped, it should be reviewed and either distilled or deleted.

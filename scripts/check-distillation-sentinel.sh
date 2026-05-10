@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # UserPromptSubmit hook: if a distillation-pending sentinel exists for this
-# project, inject a reminder for the agent to surface /ai-playbook:distil when
+# project, inject a reminder for the agent to surface /playbook:distil when
 # the developer's current turn appears to be wrapping up.
 #
 # Exits 0 silently with no output if the sentinel is absent or the reminder
@@ -21,7 +21,7 @@ if [[ -n "$input" ]]; then
 fi
 cwd="${cwd:-$PWD}"
 
-sentinel="$cwd/.claude/.ai-playbook/distillation-pending"
+sentinel="$cwd/.claude/.playbook/distillation-pending"
 [[ -f "$sentinel" ]] || exit 0
 
 contents=$(cat "$reminder_file")

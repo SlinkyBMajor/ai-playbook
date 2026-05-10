@@ -2,7 +2,7 @@
 name: distil
 description: Evaluate recent changes and propose updates to the project's permanent context (CLAUDE.md or .claude/context/) when something durable was learned
 disable-model-invocation: true
-allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(ls *) Bash(test *) Bash(cat *) Bash(mkdir *) Bash(rm -f .claude/.ai-playbook/distillation-pending) Read Edit Write
+allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(ls *) Bash(test *) Bash(cat *) Bash(mkdir *) Bash(rm -f .claude/.playbook/distillation-pending) Read Edit Write
 ---
 
 You are running the distillation step of the playbook. The developer has invoked you because they think recent changes might have introduced durable knowledge worth capturing.
@@ -88,14 +88,14 @@ If a `.claude/changes/<name>.md` file exists and the changes you just distilled 
 
 ## Phase 9: Clear the distillation-pending sentinel
 
-The plugin sets a sentinel at `.claude/.ai-playbook/distillation-pending` after each `Write|Edit|MultiEdit` so that subsequent prompts get a soft reminder to consider distillation. Once you have reached a definitive conclusion in this run — either nothing qualified, or all approved candidates have been written — clear it:
+The plugin sets a sentinel at `.claude/.playbook/distillation-pending` after each `Write|Edit|MultiEdit` so that subsequent prompts get a soft reminder to consider distillation. Once you have reached a definitive conclusion in this run — either nothing qualified, or all approved candidates have been written — clear it:
 
-`rm -f .claude/.ai-playbook/distillation-pending`
+`rm -f .claude/.playbook/distillation-pending`
 
 Skip this step if the developer aborted the run mid-flow, since the pending state still applies.
 
 ## Notes
 
 - If the developer invokes this skill mid-session and there's no diff yet (work hasn't been done), say so and stop.
-- If the developer invokes this skill on a project with no `CLAUDE.md` at the root, say so and recommend running `/ai-playbook:claude-md-setup` first.
+- If the developer invokes this skill on a project with no `CLAUDE.md` at the root, say so and recommend running `/playbook:claude-md-setup` first.
 - Never write to `.claude/context/` without first showing the proposed content to the developer for approval.

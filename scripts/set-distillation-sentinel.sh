@@ -3,7 +3,7 @@
 # PostToolUse hook (matched on Write|Edit|MultiEdit): mark the project as
 # having pending distillation candidates. The UserPromptSubmit hook reads
 # this sentinel and injects a soft reminder for the agent to surface
-# /ai-playbook:distil when the work appears to be wrapping up.
+# /playbook:distil when the work appears to be wrapping up.
 #
 # Exits 0 silently on any failure — never disrupt the agent's flow.
 
@@ -16,7 +16,7 @@ if [[ -n "$input" ]]; then
 fi
 cwd="${cwd:-$PWD}"
 
-state_dir="$cwd/.claude/.ai-playbook"
+state_dir="$cwd/.claude/.playbook"
 mkdir -p "$state_dir" 2>/dev/null || exit 0
 
 if [[ ! -f "$state_dir/.gitignore" ]]; then
