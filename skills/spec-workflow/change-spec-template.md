@@ -32,7 +32,14 @@ For purely internal changes with no observable surface, write "None — internal
 
 Explicit, testable conditions that must be true for the change to be considered complete. Each must be specific enough that "did this pass?" has a clear yes or no answer.
 
-- {Criterion 1 — phrased as a checkable condition}
+Phrase each criterion as something a verifier can *run or observe*, not something they have to interpret. Two styles work:
+
+- **Behavioural criteria**: name the input and the expected observable output. "Endpoint returns 429 with a `Retry-After` header after 100 requests from one IP within 60s" beats "rate limiting works correctly".
+- **Structural criteria**: name the file, symbol, or config key and the expected state. "`RateLimiter` middleware is registered on every route in `routes/api.ts`" beats "rate limiter is applied everywhere".
+
+A criterion phrased so the only check is "the agent reviewed it and said yes" is unverifiable — rewrite it.
+
+- {Criterion 1 — checkable condition, behavioural or structural}
 - {Criterion 2}
 - {Criterion 3}
 

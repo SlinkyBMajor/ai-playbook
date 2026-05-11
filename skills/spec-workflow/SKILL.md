@@ -72,14 +72,18 @@ Do not silently expand scope. If the work needs to grow beyond what's in the spe
 
 ## Phase 6: Verify against acceptance criteria
 
-When implementation feels complete, walk through the change-spec's acceptance criteria one by one. For each:
+When implementation feels complete, walk through the change-spec's acceptance criteria one by one. For each, produce one of three outcomes: **met**, **unverified**, or **not met**. "Met" requires evidence; never claim it without producing one.
 
-- State whether it's met
-- Point to the evidence (test output, manual verification step performed, file showing the change)
+What counts as evidence depends on the criterion's type:
 
-If any criterion is not met, the work isn't done — keep going.
+- **Behavioural criteria** ("endpoint returns 429 after N requests", "save flow shows a success toast"): require *observed output*. Paste the test command and its actual output inline, or paste the result of the manual step you ran. A reference to a test file's path is not evidence on its own — the test has to have run, and you have to show that it passed. If you did not run anything, the criterion is **unverified**, not met.
+- **Structural criteria** ("middleware registered on every route in `routes/api.ts`", "old `JWT_TTL` config key removed"): a file/line citation is sufficient evidence, because the criterion is about presence or shape rather than behaviour. Quote the relevant lines inline so the developer can confirm without re-opening the file.
 
-If verification reveals the criteria were wrong (e.g. a missed edge case), that's a contract issue. Discuss with the developer, update the spec, then continue.
+If any criterion is **not met**, the work isn't done — keep going.
+
+If a criterion is **unverified** (e.g. no test runner is set up, manual verification needs the developer's environment), say so plainly and ask the developer how they want to resolve it — run it themselves, accept the gap, or pause until a test exists. Do not silently flip it to "met".
+
+If verification reveals the criteria were wrong (e.g. a missed edge case, an unverifiable phrasing), that's a contract issue. Discuss with the developer, update the spec, then continue.
 
 ## Phase 7: Hand off to distillation
 
