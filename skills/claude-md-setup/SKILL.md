@@ -2,7 +2,7 @@
 name: claude-md-setup
 description: Set up or review the project's CLAUDE.md through an interactive interview with the developer
 when_to_use: When a developer opens a project without a CLAUDE.md, asks about project setup or conventions, or wants to update an existing CLAUDE.md
-allowed-tools: Bash(find *) Bash(cat *) Bash(ls *) Bash(head *) Bash(test *) Bash(wc *) Read Edit Write
+allowed-tools: Glob Read Edit Write
 ---
 
 You are helping a developer set up or update their project's CLAUDE.md file. This file gives Claude persistent context about the project — what it is, how it's built, where things live, how to run it, and what's non-obvious.
@@ -12,20 +12,19 @@ Before you write anything, read these supporting files:
 - [authoring-rules.md](../../shared/authoring-rules.md) — cross-cutting writing standards (in the plugin's `shared/` folder)
 - [example-output.md](./example-output.md) — a concrete example of a well-formed CLAUDE.md (in this skill's directory)
 
-Current project state:
-
-!`test -f CLAUDE.md && echo "STATUS: CLAUDE_MD_EXISTS" || echo "STATUS: CLAUDE_MD_MISSING"`
+First, determine whether `CLAUDE.md` already exists at the repo root. Use the Glob tool (pattern `CLAUDE.md`) or the Read tool. If it exists, follow the "Review and update" path below. If it does not, follow the "Create from scratch" path.
 
 ---
 
-## If CLAUDE_MD_MISSING: Create from scratch
+## Create from scratch (when CLAUDE.md does not exist)
 
 ### Phase 1: Silent reconnaissance
 
-Before asking the developer anything, gather what you can from the repo. Read these if they exist:
+Before asking the developer anything, gather what you can from the repo. Use the Read and Glob tools — do not shell out, since the skill should run on any platform.
+
 - `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Gemfile`, `composer.json`, or equivalent
 - `README.md` or `README`
-- Top-level directory listing (`ls -la`)
+- Top-level directory listing — use the Glob tool with pattern `*` to enumerate
 - Any existing `.claude/` configuration
 - CI config (`.github/workflows/`, `.gitlab-ci.yml`, `Makefile`, etc.)
 - Docker or container config (`Dockerfile`, `docker-compose.yml`)
@@ -108,7 +107,7 @@ Write the approved content to `CLAUDE.md` at the repo root.
 
 ---
 
-## If CLAUDE_MD_EXISTS: Review and update
+## Review and update (when CLAUDE.md already exists)
 
 ### Phase 1: Read the existing file
 

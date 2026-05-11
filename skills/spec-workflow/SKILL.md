@@ -2,13 +2,13 @@
 name: spec-workflow
 description: Drive substantial work through plan mode and a written change-spec, then implement against it
 when_to_use: When the developer is starting substantial work — adding a feature, building or implementing something new, refactoring across multiple files, or anything with acceptance criteria they can't hold in their head. Trigger on phrases like "let's add", "I want to build", "we need to implement", "help me refactor", or any request describing scope that sounds like more than a single-file change. Not for one-line fixes, typos, config tweaks, or contained edits — those go through the direct path without a spec. Phase 1 of the skill confirms scope before entering plan mode, so it is safe to trigger on borderline cases; the developer can redirect if they want the direct path instead.
-allowed-tools: Bash(ls *) Bash(test *) Bash(mkdir *) Bash(date *) Read Edit Write
+allowed-tools: Glob Read Edit Write
 hooks:
   PostToolUse:
     - matcher: "ExitPlanMode"
       hooks:
         - type: command
-          command: "${CLAUDE_PLUGIN_ROOT}/scripts/inject-additional-context.sh \"${CLAUDE_PLUGIN_ROOT}/shared/spec-workflow-exit-plan-instructions.md\" PostToolUse"
+          command: "node \"${CLAUDE_PLUGIN_ROOT}/scripts/inject.js\" \"${CLAUDE_PLUGIN_ROOT}/shared/spec-workflow-exit-plan-instructions.md\" PostToolUse"
           timeout: 5
 ---
 
@@ -60,8 +60,7 @@ Show the developer the drafted change-spec. Wait for explicit approval. Apply ed
 
 If the routing target is `.claude/changes/<name>.md` and the folder doesn't exist:
 
-1. Create `.claude/changes/` (e.g. `mkdir -p .claude/changes`)
-2. Copy the contents of [changes-folder-template.md](./changes-folder-template.md) into `.claude/changes/CLAUDE.md` — minus the leading "Template for..." preamble, starting from the `# Change-specs` heading
+1. Write `.claude/changes/CLAUDE.md` using the Write tool — it creates parent directories automatically, so no separate `mkdir` is needed (this is what keeps the skill cross-platform). The content is the body of [changes-folder-template.md](./changes-folder-template.md) minus the leading "Template for..." preamble, starting from the `# Change-specs` heading.
 
 Then write the approved change-spec to `.claude/changes/<short-name>.md`.
 

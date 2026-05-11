@@ -2,7 +2,7 @@
 name: distil
 description: Evaluate recent changes and propose updates to the project's permanent context (CLAUDE.md or .claude/context/) when something durable was learned
 disable-model-invocation: true
-allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(ls *) Bash(test *) Bash(cat *) Bash(mkdir *) Bash(rm -f .claude/.playbook/distillation-pending) Read Edit Write
+allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(node *) Glob Read Edit Write
 ---
 
 You are running the distillation step of the playbook. The developer has invoked you because they think recent changes might have introduced durable knowledge worth capturing.
@@ -71,8 +71,7 @@ This "ask every time" behaviour is intentional. Even when routing is obvious, th
 
 If the routing decision involves writing to `.claude/context/` and the folder doesn't exist:
 
-1. Create `.claude/context/` (e.g. `mkdir -p .claude/context`)
-2. Copy the contents of [context-folder-template.md](./context-folder-template.md) into `.claude/context/CLAUDE.md` — minus the leading "Template for..." preamble, starting from the `# Context files` heading
+1. Write `.claude/context/CLAUDE.md` using the Write tool — it creates parent directories automatically, so no separate `mkdir` is needed (this is what keeps the skill cross-platform). The content is the body of [context-folder-template.md](./context-folder-template.md) minus the leading "Template for..." preamble, starting from the `# Context files` heading.
 
 This per-folder CLAUDE.md tells future agents what belongs in the folder, scoped to that location only.
 
@@ -88,9 +87,9 @@ If a `.claude/changes/<name>.md` file exists and the changes you just distilled 
 
 ## Phase 9: Clear the distillation-pending sentinel
 
-The plugin sets a sentinel at `.claude/.playbook/distillation-pending` after each `Write|Edit|MultiEdit` so that subsequent prompts get a soft reminder to consider distillation. Once you have reached a definitive conclusion in this run — either nothing qualified, or all approved candidates have been written — clear it:
+The plugin sets a sentinel at `.claude/.playbook/distillation-pending` after each `Write|Edit|MultiEdit` so that subsequent prompts get a soft reminder to consider distillation. Once you have reached a definitive conclusion in this run — either nothing qualified, or all approved candidates have been written — clear it by running the bundled helper via the Bash tool:
 
-`rm -f .claude/.playbook/distillation-pending`
+`node "${CLAUDE_PLUGIN_ROOT}/scripts/clear-sentinel.js"`
 
 Skip this step if the developer aborted the run mid-flow, since the pending state still applies.
 
