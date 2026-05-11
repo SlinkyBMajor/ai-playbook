@@ -4,6 +4,22 @@ A Claude Code plugin that gives a small, opinionated workflow for AI-assisted de
 
 The plugin contains three skills, three plugin-level hooks, and an optional bundled MCP server. Together they automate the parts of the workflow most often skipped: writing the initial context file, planning substantial changes properly, and keeping the permanent context current as work happens.
 
+## Philosophy
+
+Most AI playbooks fail by governing everything upfront — the overhead exceeds the benefit, the documents go stale, and developers route around the process. The opposite extreme leaves useful context unwritten and durable knowledge trapped in whoever did the work. This playbook is the deliberate middle: the minimum structure that keeps an agent productive across a project's lifetime without becoming a process tax.
+
+Five principles drive the design. Each maps to a specific piece of the plugin that enforces it.
+
+| Principle | Implemented by |
+|---|---|
+| **One source of truth beats elaborate process.** A single well-maintained `CLAUDE.md` plus a small `.claude/context/` folder outperforms a documentation hierarchy. | `claude-md-setup` produces and maintains the root `CLAUDE.md`. `distil` keeps `.claude/context/` small and current. Nothing else is written to disk by default. |
+| **Match the path to the size of the work.** Forcing a one-line fix through a spec is theatre; letting a multi-file refactor proceed without a written contract is reckless. | Two paths. Direct path: just edit, no skill needed. Spec path: `spec-workflow` enters plan mode, interviews verbosely, and produces a written change-spec at `.claude/changes/<name>.md` before any code is written. |
+| **Gate on artifacts, not conversations.** What got decided in chat is worth nothing six weeks later; what got written to a file is auditable. | The change-spec is the contract. Its acceptance criteria are explicit and testable, and `spec-workflow` verifies the implementation against them one by one before work is considered done. |
+| **Humans at handoffs, not throughout.** Constant approval gates train developers to rubber-stamp. Surfacing the right moments preserves judgment where it matters. | `spec-workflow` pauses at four explicit gates — scope, plan, spec, verification. `distil` confirms every routing decision before writing. No silent writes anywhere; no nagging in between. |
+| **Permanent context grows by distillation, not accumulation.** Specs that linger turn into stale documentation; knowledge never captured stays in heads. | After substantial work, `distil` evaluates the change against five criteria and proposes updates to `CLAUDE.md` or a context file; the retired change-spec is then removed. For direct-path work, a `PostToolUse` hook flags recent edits as pending distillation, and a `UserPromptSubmit` hook surfaces `/playbook:distil` when the developer's next message reads as "wrapping up" — so direct edits aren't silently exempt from the loop. |
+
+The plugin is small on purpose: three skills, three plugin-level hooks, one skill-scoped hook on `ExitPlanMode`. It automates the parts of the workflow that are tedious enough to be skipped — writing the initial context, transforming a plan into a written spec, prompting for distillation at the right moment — and leaves every judgment call to the developer.
+
 ## Installation
 
 ```
