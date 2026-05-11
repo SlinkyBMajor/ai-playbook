@@ -29,22 +29,30 @@ If nothing in the change meets any criterion, say so explicitly to the developer
 
 If something does qualify, hold each candidate as a separate item — they may route to different files.
 
-## Phase 3: Read the existing context
+## Phase 3: Map the scope of each candidate
 
-Before proposing where new content goes, read what's already there:
+This project may be a single repo, or it may be a super-repo containing sub-repos that each carry their own `CLAUDE.md` and `.claude/context/`. The playbook supports both. The routing target for any candidate must be the *most-local* scope whose contents the candidate describes — otherwise, knowledge that belongs to one sub-repo ends up at the super-repo level where someone working inside the sub-repo alone will never see it.
 
-- `CLAUDE.md` at the repo root (always)
-- All files in `.claude/context/` if the folder exists
-- Note: `.claude/changes/` is for ephemeral change-specs, not for distillation targets — never write into it
+For each changed path in the diff, find the **nearest-ancestor scope** — the closest ancestor directory (starting from the file itself and walking upward) that contains a `CLAUDE.md` or a `.claude/context/` directory. The repo root counts; intermediate directories with their own `CLAUDE.md` count first.
 
-This step is mandatory. Skipping it leads to duplicated content, contradictions with existing files, and missed opportunities to update rather than create.
+Then read what already exists in every scope you identified:
+
+- The `CLAUDE.md` files at each scope root
+- All files in `.claude/context/` at each scope, if the folder exists
+- Note: `.claude/changes/` is for ephemeral change-specs, never a distillation target
+
+This step is mandatory. Reading every relevant scope prevents duplicated content, contradictions with existing files, and missed opportunities to update rather than create.
 
 ## Phase 4: Decide on a target for each candidate
 
-For each candidate observation, decide where it belongs:
+For each candidate observation, pick a destination using two questions in this order:
 
-- **Update CLAUDE.md** if the candidate corrects or extends something already in CLAUDE.md (most often: the Gotchas section or an outdated Stack/Commands entry).
-- **Update an existing context file** if `.claude/context/` already has a file covering the affected area.
+**1. Which scope owns this knowledge?** Default to the nearest-ancestor scope of the changed paths the candidate describes. Promote to a higher scope (a parent repo's `CLAUDE.md` / `.claude/context/`) only when the candidate is genuinely cross-cutting — it describes a convention multiple sub-repos must follow, names a relationship between sub-repos, or constrains how they integrate. When unsure, propose the local target. The developer can override; over-correction toward the super-repo is harder to undo because it leaks shared-looking content into a place sub-repos can't see standalone.
+
+**2. Inside that scope, which file?**
+
+- **Update the scope's `CLAUDE.md`** if the candidate corrects or extends something already there (most often: the Gotchas section or an outdated Stack/Commands entry).
+- **Update an existing context file** if the scope's `.claude/context/` already has a file covering the affected area.
 - **Create a new context file** if no existing file fits and the candidate is substantial enough to warrant its own file.
 - **Add a section to an adjacent context file** if the candidate is small but related to an existing file's scope.
 
@@ -56,7 +64,7 @@ For each candidate, present:
 
 1. **What** — a one-sentence summary of the observation.
 2. **Why it qualifies** — which distillation criterion it meets.
-3. **Proposed target** — the specific file (existing or new) and a brief reason.
+3. **Proposed target** — the specific file (existing or new) and a brief reason. When the project has multiple scopes, name the target by full path from the cwd (e.g. `services/api/.claude/context/api-conventions.md`) so the developer can see which scope you chose and override if it should live higher up.
 
 Then offer the developer three options for the routing decision:
 - **Confirm** — accept the proposed target as-is
@@ -69,11 +77,11 @@ This "ask every time" behaviour is intentional. Even when routing is obvious, th
 
 ## Phase 6: Lazy folder setup
 
-If the routing decision involves writing to `.claude/context/` and the folder doesn't exist:
+If the routing decision involves writing to a `.claude/context/` folder that doesn't exist yet (whether at the repo root or inside a sub-repo scope):
 
-1. Write `.claude/context/CLAUDE.md` using the Write tool — it creates parent directories automatically, so no separate `mkdir` is needed (this is what keeps the skill cross-platform). The content is the body of [context-folder-template.md](./context-folder-template.md) minus the leading "Template for..." preamble, starting from the `# Context files` heading.
+1. Write `<scope>/.claude/context/CLAUDE.md` using the Write tool — it creates parent directories automatically, so no separate `mkdir` is needed (this is what keeps the skill cross-platform). The content is the body of [context-folder-template.md](./context-folder-template.md) minus the leading "Template for..." preamble, starting from the `# Context files` heading.
 
-This per-folder CLAUDE.md tells future agents what belongs in the folder, scoped to that location only.
+`<scope>` is whichever scope root the candidate routes to — the repo root in the single-repo case, a sub-repo's root in the hierarchical case. This per-folder CLAUDE.md tells future agents what belongs in the folder, scoped to that location only.
 
 ## Phase 7: Write the update
 
@@ -96,5 +104,5 @@ Skip this step if the developer aborted the run mid-flow, since the pending stat
 ## Notes
 
 - If the developer invokes this skill mid-session and there's no diff yet (work hasn't been done), say so and stop.
-- If the developer invokes this skill on a project with no `CLAUDE.md` at the root, say so and recommend running `/playbook:claude-md-setup` first.
-- Never write to `.claude/context/` without first showing the proposed content to the developer for approval.
+- If the developer invokes this skill on a project with no `CLAUDE.md` at the root, say so and recommend running `/playbook:claude-md-setup` first. In a super-repo with sub-repos that have their own `CLAUDE.md` files, a missing super-repo `CLAUDE.md` is fine — the recommendation only applies when there's no `CLAUDE.md` anywhere in the changed scopes.
+- Never write to `.claude/context/` (at any scope) without first showing the proposed content to the developer for approval.

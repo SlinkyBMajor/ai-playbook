@@ -28,6 +28,19 @@ claude /plugin install github.com/SlinkyBMajor/ai-playbook
 
 The repo is named `ai-playbook`, but the plugin registers itself in Claude Code as `playbook`, so all commands are namespaced as `/playbook:<skill>`.
 
+## Super-repo and monorepo setups (recommended)
+
+The setup we recommend internally — and the one the playbook is designed to fit naturally — is a hierarchy of repos. A *super-repo* (the local dev environment) carries the shared domain knowledge that spans the whole system, and each *sub-repo* inside it carries its own self-sufficient `CLAUDE.md` and `.claude/` folder describing only what's specific to that sub-repo. When the agent works inside a sub-repo, Claude Code automatically loads both the super-repo's CLAUDE.md and the sub-repo's via nested-directory traversal, so context is discovered where it's needed without anyone having to maintain a single bloated file. Each sub-repo also remains documented in isolation — useful when someone clones just that repo, or when a different team owns it.
+
+The playbook supports this out of the box:
+
+- **Install once at user scope** (`claude /plugin install ...`, the default scope) so every repo on your machine has the playbook available without needing to commit it into each sub-repo.
+- **Run `/playbook:claude-md-setup` independently in each repo** that benefits from its own context — the super-repo for shared concerns, and each sub-repo for its specific ones. The skill writes to the `CLAUDE.md` at the current working directory, so just `cd` to the repo you're documenting before invoking it.
+- **`/playbook:distil` is hierarchy-aware.** It looks at where the changed files actually live in the diff and routes durable knowledge to the nearest-ancestor scope that has a `CLAUDE.md` or `.claude/context/`. Cross-cutting knowledge gets promoted to the super-repo; sub-repo-specific knowledge stays inside the sub-repo. The developer is asked to confirm the routing every time, so any over-correction is one keystroke to redirect.
+- **`/playbook:spec-workflow` writes its change-spec to `.claude/changes/` relative to the current working directory.** If you `cd` into the sub-repo where the substantial work is happening before starting the spec, the spec lives there alongside the code it describes.
+
+Nothing in the playbook special-cases the super-repo arrangement — it works equally well in a flat single-repo project. The hierarchy support is just a consequence of every file operation being relative to where you're working, plus distillation knowing how to find the right scope for each change.
+
 ## Usage guide
 
 ### The mental model
