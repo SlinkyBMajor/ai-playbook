@@ -1,7 +1,7 @@
 ---
 name: spec-workflow
 description: Drive substantial work through plan mode and a written change-spec, then implement against it
-when_to_use: When the developer is starting substantial work — adding a feature, building or implementing something new, refactoring across multiple files, or anything with acceptance criteria they can't hold in their head. Trigger on phrases like "let's add", "I want to build", "we need to implement", "help me refactor", or any request describing scope that sounds like more than a single-file change. Not for one-line fixes, typos, config tweaks, or contained edits — those go through the direct path without a spec. Phase 1 of the skill confirms scope before entering plan mode, so it is safe to trigger on borderline cases; the developer can redirect if they want the direct path instead.
+when_to_use: When the developer is starting substantial work — adding a feature, building or implementing something new, refactoring across multiple files, or anything with acceptance criteria they can't hold in their head. Trigger on phrases like "let's add", "I want to build", "we need to implement", "help me refactor", or any request describing scope that sounds like more than a single-file change. Not for one-line fixes, typos, config tweaks, or contained edits — those go through the direct path without a spec. Phase 1 of the skill establishes the scope (asking the developer if the invocation didn't include one) and confirms it warrants the spec path, so it is safe to trigger on borderline or bare invocations; the developer can redirect if they want the direct path instead.
 allowed-tools: Glob Read Edit Write
 hooks:
   PostToolUse:
@@ -18,9 +18,14 @@ Before doing anything, read these supporting files:
 - [change-spec-template.md](./change-spec-template.md) — the seven-section structure your change-spec must follow
 - [authoring-rules.md](../../shared/authoring-rules.md) — writing standards for any text you produce
 
-## Phase 1: Confirm scope
+## Phase 1: Establish and confirm scope
 
-Briefly confirm with the developer that this work warrants the spec path. If they describe something small (one file, one line, a typo, a config tweak), suggest they skip the skill and just do the work directly — the playbook is explicit that the direct path is correct for contained changes.
+First, locate the work.
+
+- If the developer's invoking message already describes the change ("let's add X", "help me refactor Y"), use that as the scope.
+- If the message is bare (e.g. just `/playbook:spec-workflow` with no surrounding description), ask one open question: "What do you want to build?" Do not propose options. Do not infer candidates from the repo. Wait for the developer's answer.
+
+Once you have a described scope, briefly confirm it warrants the spec path. If it's small (one file, one line, a typo, a config tweak), suggest they skip the skill and just do the work directly — the playbook is explicit that the direct path is correct for contained changes.
 
 If the work is genuinely substantial, proceed.
 
