@@ -1,8 +1,8 @@
 # ai-playbook
 
-A Claude Code plugin that gives a small, opinionated workflow for AI-assisted development. The premise: a single well-maintained `CLAUDE.md` plus a small `.claude/context/` folder beats elaborate process documentation, and a written change-spec is the right governance for substantial work — not a meeting.
+A Claude Code plugin that gives a small, opinionated workflow for AI-assisted development. The premise: a single well-maintained `CLAUDE.md` plus a small set of distilled-context files in the project's docs folder beats elaborate process documentation, and a written change-spec is the right governance for substantial work — not a meeting.
 
-The plugin contains three skills, three plugin-level hooks, and an optional bundled MCP server. Together they automate the parts of the workflow most often skipped: writing the initial context file, planning substantial changes properly, and keeping the permanent context current as work happens.
+The plugin contains four skills, three plugin-level hooks, and an optional bundled MCP server. Together they automate the parts of the workflow most often skipped: configuring where durable context lives, writing the initial context file, planning substantial changes properly, and keeping the permanent context current as work happens.
 
 ## Philosophy
 
@@ -12,13 +12,13 @@ Five principles drive the design. Each maps to a specific piece of the plugin th
 
 | Principle | Implemented by |
 |---|---|
-| **One source of truth beats elaborate process.** A single well-maintained `CLAUDE.md` plus a small `.claude/context/` folder outperforms a documentation hierarchy. | `claude-md-setup` produces and maintains the root `CLAUDE.md`. `distil` keeps `.claude/context/` small and current. Nothing else is written to disk by default. |
+| **One source of truth beats elaborate process.** A single well-maintained `CLAUDE.md` plus a small set of distilled-context files in the project's docs folder outperforms a documentation hierarchy. | `claude-md-setup` produces and maintains the root `CLAUDE.md`. `distil` keeps the docs folder small and current. Nothing else is written to disk by default. |
 | **Match the path to the size of the work.** Forcing a one-line fix through a spec is theatre; letting a multi-file refactor proceed without a written contract is reckless. | Two paths. Direct path: just edit, no skill needed. Spec path: `spec-workflow` enters plan mode, interviews verbosely, and produces a written change-spec at `.claude/changes/<name>.md` before any code is written. |
 | **Gate on artifacts, not conversations.** What got decided in chat is worth nothing six weeks later; what got written to a file is auditable. | The change-spec is the contract. Its acceptance criteria are explicit and testable, and `spec-workflow` verifies the implementation against them one by one before work is considered done. |
 | **Humans at handoffs, not throughout.** Constant approval gates train developers to rubber-stamp. Surfacing the right moments preserves judgment where it matters. | `spec-workflow` pauses at four explicit gates — scope, plan, spec, verification. `distil` confirms every routing decision before writing. No silent writes anywhere; no nagging in between. |
 | **Permanent context grows by distillation, not accumulation.** Specs that linger turn into stale documentation; knowledge never captured stays in heads. | After substantial work, `distil` evaluates the change against five criteria and proposes updates to `CLAUDE.md` or a context file; the retired change-spec is then removed. For direct-path work, a `PostToolUse` hook flags recent edits as pending distillation, and a `UserPromptSubmit` hook surfaces `/playbook:distil` when the developer's next message reads as "wrapping up" — so direct edits aren't silently exempt from the loop. |
 
-The plugin is small on purpose: three skills, three plugin-level hooks, one skill-scoped hook on `ExitPlanMode`. It automates the parts of the workflow that are tedious enough to be skipped — writing the initial context, transforming a plan into a written spec, prompting for distillation at the right moment — and leaves every judgment call to the developer.
+The plugin is small on purpose: four skills, three plugin-level hooks, one skill-scoped hook on `ExitPlanMode`. It automates the parts of the workflow that are tedious enough to be skipped — picking where durable context lives, writing the initial context, transforming a plan into a written spec, prompting for distillation at the right moment — and leaves every judgment call to the developer.
 
 ## Installation
 
@@ -36,7 +36,7 @@ The playbook supports this out of the box:
 
 - **Install once at user scope** (`claude /plugin install ...`, the default scope) so every repo on your machine has the playbook available without needing to commit it into each sub-repo.
 - **Run `/playbook:claude-md-setup` independently in each repo** that benefits from its own context — the super-repo for shared concerns, and each sub-repo for its specific ones. The skill writes to the `CLAUDE.md` at the current working directory, so just `cd` to the repo you're documenting before invoking it.
-- **`/playbook:distil` is hierarchy-aware.** It looks at where the changed files actually live in the diff and routes durable knowledge to the nearest-ancestor scope that has a `CLAUDE.md` or `.claude/context/`. Cross-cutting knowledge gets promoted to the super-repo; sub-repo-specific knowledge stays inside the sub-repo. The developer is asked to confirm the routing every time, so any over-correction is one keystroke to redirect.
+- **`/playbook:distil` is hierarchy-aware.** It looks at where the changed files actually live in the diff and routes durable knowledge to the nearest-ancestor scope that has a `CLAUDE.md`, writing into that scope's docs folder. Cross-cutting knowledge gets promoted to the super-repo; sub-repo-specific knowledge stays inside the sub-repo. The developer is asked to confirm the routing every time, so any over-correction is one keystroke to redirect.
 - **`/playbook:spec-workflow` writes its change-spec to `.claude/changes/` relative to the current working directory.** If you `cd` into the sub-repo where the substantial work is happening before starting the spec, the spec lives there alongside the code it describes.
 
 Nothing in the playbook special-cases the super-repo arrangement — it works equally well in a flat single-repo project. The hierarchy support is just a consequence of every file operation being relative to where you're working, plus distillation knowing how to find the right scope for each change.
@@ -50,17 +50,27 @@ The playbook organises any work into one of two paths, with the same closing ste
 - **Direct path.** Small, contained changes — a config tweak, a one-line fix, a typo. No spec, no overhead. Just edit and move on.
 - **Spec path.** Substantial work — multiple files, a new pattern, acceptance criteria you can't hold in your head. You enter a structured flow that produces a written change-spec at `.claude/changes/<name>.md`, then implements against it and verifies the work against the criteria.
 
-Both paths converge on **distillation**. When work is done, ask: *did this change anything a future developer would want to know?* If yes, the durable knowledge gets captured into `CLAUDE.md` or a file under `.claude/context/`. The change-spec, if there was one, is then retired.
+Both paths converge on **distillation**. When work is done, ask: *did this change anything a future developer would want to know?* If yes, the durable knowledge gets captured into `CLAUDE.md` or a file in the scope's docs folder (defaulting to `docs/`). The change-spec, if there was one, is then retired.
 
 This is what keeps the permanent context small and current. Specs don't accumulate; they distil.
 
-### Day one — set up the project
+### Day zero — pick where durable context lives
+
+```
+/playbook:init
+```
+
+Configures the playbook for the current scope: which folder will hold the project's distilled durable context. By default that's `docs/` at the repo (or sub-repo) root, but init lets you pick any folder — useful when the project already has `documentation/`, `wiki/`, or a custom location. The choice is persisted to `.claude/.playbook/config.json` and the folder is marked with a small `CLAUDE.md` so future agents can recognise it.
+
+Run this once per scope. In a super-repo, run it at the super-repo root and inside each sub-repo you want configured independently. Safe to re-run later to change the location; init will tell you what to migrate by hand.
+
+### Day one — set up the project's CLAUDE.md
 
 ```
 /playbook:claude-md-setup
 ```
 
-Walks you through five questions one at a time: what the project is, the stack, where things live, commands, and gotchas. The skill reads the repo first and only asks about what it can't infer. Output is a concise `CLAUDE.md` at the repo root that the agent loads on every future session.
+Walks you through five questions one at a time: what the project is, the stack, where things live, commands, and gotchas. The skill reads the repo first and only asks about what it can't infer. Output is a concise `CLAUDE.md` at the repo root that the agent loads on every future session. If you ran `/playbook:init` first, the directory index automatically points at the docs folder you chose.
 
 If a `CLAUDE.md` already exists, the same skill switches into review-and-update mode.
 
@@ -88,7 +98,7 @@ The plugin still helps you here. After every `Write`, `Edit`, or `MultiEdit` in 
 /playbook:distil
 ```
 
-Reads the recent changes (uncommitted diff first, recent commits if the tree is clean), evaluates them against five criteria — new conventions, security boundaries, durable design choices, non-obvious gotchas, corrections to existing context — and proposes updates to either `CLAUDE.md` or a file in `.claude/context/`. You're asked where each addition should land. Nothing is written until you approve.
+Reads the recent changes (uncommitted diff first, recent commits if the tree is clean), evaluates them against five criteria — new conventions, security boundaries, durable design choices, non-obvious gotchas, corrections to existing context — and proposes updates to either `CLAUDE.md` or a file in the scope's docs folder (defaulting to `docs/`). You're asked where each addition should land. Nothing is written until you approve.
 
 If nothing in the change qualifies, the skill says so and stops. A turn that produces no distillation is the common case, not a failure.
 
@@ -98,6 +108,7 @@ After a successful run, the skill clears the pending-distillation sentinel so th
 
 | Command | When to use | Invocation |
 |---|---|---|
+| `/playbook:init` | First time configuring the playbook in a scope, or changing where durable context lives | User only |
 | `/playbook:claude-md-setup` | Project has no `CLAUDE.md`, or the existing one needs review | User or agent |
 | `/playbook:spec-workflow` | Work touches multiple files, introduces a new pattern, or has acceptance criteria you can't hold in your head | User or agent |
 | `/playbook:distil` | Recent changes may have produced durable knowledge worth capturing | User only |
@@ -119,11 +130,12 @@ The `spec-workflow` skill also installs a skill-scoped `PostToolUse` hook on `Ex
 | Path | Created by | Purpose |
 |---|---|---|
 | `CLAUDE.md` | `claude-md-setup` | Root context file loaded on every session |
-| `.claude/context/` | `distil` (lazy) | Permanent, distilled knowledge — small files scoped to one area each |
+| `.claude/.playbook/config.json` | `init` | Per-scope playbook configuration — currently just `docs_folder` |
+| `docs/` (or your chosen docs folder) | `init` or `distil` (lazy) | Permanent, distilled knowledge — small files scoped to one area each, marked with a per-folder `CLAUDE.md` |
 | `.claude/changes/` | `spec-workflow` (lazy) | Ephemeral change-specs; removed after distillation |
 | `.claude/.playbook/distillation-pending` | PostToolUse hook | Sentinel for the soft auto-trigger; the directory is self-gitignored |
 
-`.claude/context/` and `.claude/changes/` each carry their own slim per-folder `CLAUDE.md` describing what belongs there.
+The docs folder and `.claude/changes/` each carry their own slim per-folder `CLAUDE.md` describing what belongs there. The docs folder defaults to `docs/` at the scope root so non-Claude developers find the durable knowledge under the familiar path; a future init step will let you pick a different folder per scope.
 
 ## Bundled MCP servers
 

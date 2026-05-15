@@ -1,6 +1,6 @@
 # Distillation criteria
 
-Use this checklist to decide whether a change has produced anything worth capturing in the project's permanent context (CLAUDE.md or `.claude/context/`).
+Use this checklist to decide whether a change has produced anything worth capturing in the project's permanent context (CLAUDE.md or the scope's durable-context folder, typically `docs/`).
 
 A change is worth distilling if it introduces or modifies any of the following:
 

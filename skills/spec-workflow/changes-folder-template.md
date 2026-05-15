@@ -15,7 +15,7 @@ Do not bulk-read this folder. At any moment, at most one spec here is the contra
 When entering this folder:
 - If there is a spec named after the change you are working on, read only that file.
 - If you are not actively working on a spec-driven change, do not read any spec files — they will only add noise to your context.
-- Permanent project knowledge does not live here. Look in `.claude/context/` for that.
+- Permanent project knowledge does not live here. Look in the scope's durable-context folder for that — typically `docs/` at the repo (or sub-repo) root.
 
 ## What belongs here
 
@@ -25,7 +25,7 @@ When entering this folder:
 
 ## What does not belong here
 
-- Permanent project context — that lives in `.claude/context/` (created by the distil skill)
+- Permanent project context — that lives in the scope's durable-context folder (typically `docs/`, created or marked by the distil skill)
 - Implementation notes, design docs, or research — change-specs are a contract, not a workspace
 - Specs for changes that have already shipped and been distilled
 

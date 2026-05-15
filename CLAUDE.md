@@ -4,7 +4,7 @@ This file is for agents working on the `playbook` plugin itself (repo: `ai-playb
 
 ## What is this
 
-Source repository for the `playbook` Claude Code plugin (repo name: `ai-playbook`): a consultancy playbook for AI-assisted development. The plugin ships three skills (`claude-md-setup`, `distil`, `spec-workflow`) plus shared instructions, hooks, and a bundled MCP server.
+Source repository for the `playbook` Claude Code plugin (repo name: `ai-playbook`): a consultancy playbook for AI-assisted development. The plugin ships four skills (`init`, `claude-md-setup`, `distil`, `spec-workflow`) plus shared instructions, hooks, and a bundled MCP server.
 
 The original design intent lives in `ai-playbook-research.md` at the repo root.
 

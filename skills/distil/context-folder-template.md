@@ -1,18 +1,16 @@
-# CLAUDE.md (template for `.claude/context/`)
+# CLAUDE.md (template for a scope's durable-context folder)
 
-This template is written verbatim into `.claude/context/CLAUDE.md` the first time the distil skill creates the folder.
+This template is written verbatim into `<scope>/<docs-folder>/CLAUDE.md` the first time the distil skill writes a file into that folder. The default `<docs-folder>` is `docs/` at the scope root; future versions of the playbook will let the developer pick a different folder per scope, and this template applies wherever the folder ends up.
 
 ---
 
-# Context files
+# Durable project context
 
-This folder holds the project's permanent context — distilled, durable knowledge that should outlive any single change.
-
-Each file is scoped to one area: a single convention, a security boundary, a piece of architecture. Files stay small and stable because they grow by distillation, not accumulation.
+This folder holds the project's durable context — distilled, persistent knowledge that should outlive any single change. It is intentionally placed in the project's regular documentation folder so developers and agents find it under the same familiar path.
 
 ## How to consult this folder
 
-These files are meant to be read by agents working anywhere in the codebase, not just inside this folder. Before substantive work in a given area, read the relevant scoped file:
+Files in this folder are meant to be read by agents working anywhere in the codebase, not just inside the folder. Before substantive work in a given area, read the relevant scoped file:
 
 - Touching auth, sessions, tokens, or anything trust-related → read `security.md` (or whatever scoped file covers the area)
 - Touching the API surface, request handling, or external interfaces → read `api-conventions.md` (or equivalent)
@@ -20,20 +18,22 @@ These files are meant to be read by agents working anywhere in the codebase, not
 
 If a file scoped to your current area exists, treat its contents as binding. They outrank general defaults and training-data assumptions. If multiple files seem related, read them all — these files are kept short specifically so reading several is cheap.
 
-## What belongs here
+## What `/playbook:distil` writes here
 
 - Conventions future work should follow
 - Security and trust boundaries
 - Durable design choices and the constraints they imply
 - Non-obvious gotchas that span multiple changes
 
-## What does not belong here
+## What `/playbook:distil` does not write here
 
 - Implementation details that the code itself documents
 - Information already in the root `CLAUDE.md` (this folder supplements it, not duplicates it)
 - Per-feature change-specs (those go in `.claude/changes/` and are removed after distillation)
 - Aspirational or speculative content — only describe current state
 
-## File naming
+This folder may also contain other documentation the team maintains by hand (architecture notes, runbooks, ADRs). Those files coexist with the distilled context; this `CLAUDE.md` describes only what the playbook writes.
 
-Files should be scoped to a meaningful concept: `security.md`, `data-model.md`, `kafka-events.md`, `api-conventions.md`. Not so narrow they fragment the context (no `that-blue-button.md`), not so broad they become a dump.
+## File naming for distilled files
+
+Files written by distil should be scoped to a meaningful concept: `security.md`, `data-model.md`, `kafka-events.md`, `api-conventions.md`. Not so narrow they fragment the context (no `that-blue-button.md`), not so broad they become a dump.

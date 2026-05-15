@@ -28,23 +28,23 @@ This file is for plugin maintainers, not consumers. Excluded from distribution v
 - Whether a future hook event lets a plugin invoke a skill directly. If so, the trade-space changes — block-and-invoke becomes feasible without the `disable-model-invocation` flip.
 - Whether the sentinel granularity should change. Per-project (current) is the simplest; per-task or per-change-spec would be more precise but requires inferring task boundaries.
 
-## Collapse `.claude/context/` into `.claude/rules/` for native discoverability
+## Mirror distilled content into `.claude/rules/` for native discoverability
 
-**Status:** Deferred. Discoverability is currently solved by seeding `.claude/context/` into the root CLAUDE.md directory index so agents working anywhere in the project know to consult it. This works but relies on the agent actually reading the index and choosing to load files.
+**Status:** Deferred. Discoverability is currently solved by seeding the scope's docs folder (defaulting to `docs/`) into the root CLAUDE.md directory index so agents working anywhere in the project know to consult it. This works but relies on the agent actually reading the index and choosing to load files.
 
-**The alternative.** Per the Claude Code hook docs, `.claude/rules/*.md` files are auto-loaded into context (the `InstructionsLoaded` event fires with `load_reason: path_glob_match` for them). Moving distilled content from `.claude/context/` to `.claude/rules/` would make every distilled file load automatically every session, no agent action required.
+**The alternative.** Per the Claude Code hook docs, `.claude/rules/*.md` files are auto-loaded into context (the `InstructionsLoaded` event fires with `load_reason: path_glob_match` for them). Mirroring distilled content from `docs/` into `.claude/rules/` (or routing some candidates there instead of `docs/`) would make every distilled file load automatically every session, no agent action required.
 
 **Why we did not do this.**
 
-- The playbook's research and templates use `.claude/context/` as a deliberate name. "Rules" reads as imperative ("you must do X"); "context" reads as informational ("here is how this project works"). Distilled knowledge is the latter — conventions, security boundaries, design choices — not commandments.
-- Auto-loading every distilled file every session bypasses the "read what is relevant when it is relevant" pattern. For a project with ten context files totalling a few thousand tokens, that is fine. For a project that has been distilled aggressively for a year, it becomes a context-window tax paid on every session regardless of what the work needs.
-- Conflating context and rules removes a meaningful distinction. The plugin already supports rules-style content if a project wants it — users can drop their own files into `.claude/rules/` independently. Forcing distilled context into the same bucket is a one-way change.
+- The playbook deliberately puts durable context in the project's docs folder so non-Claude developers find the same knowledge under a familiar path. `.claude/rules/` is invisible to anyone not using Claude Code. Splitting distilled content across both locations risks divergence; auto-loading from `.claude/rules/` only would lose the "humans find it too" property.
+- "Rules" reads as imperative ("you must do X"); the distilled content is informational ("here is how this project works") — conventions, security boundaries, design choices — not commandments.
+- Auto-loading every distilled file every session bypasses the "read what is relevant when it is relevant" pattern. For a project with ten files totalling a few thousand tokens, that is fine. For a project that has been distilled aggressively for a year, it becomes a context-window tax paid on every session regardless of what the work needs.
 
 **What a future pass should reconsider.**
 
-- Whether the directory-index pointer is enough in practice. If agents routinely ignore `.claude/context/` despite the index entry, native auto-load becomes more attractive.
-- Whether a hybrid is worth shipping: a small set of "always-load" files at `.claude/rules/` plus the broader `.claude/context/` library for on-demand reads. The distil skill would need to route candidates between the two based on how universally relevant they are.
-- Whether Claude Code grows a third option (e.g. lazy-glob-load on file pattern match) that captures the best of both — load context files when the agent touches related code, ignore them otherwise.
+- Whether the directory-index pointer is enough in practice. If agents routinely ignore the docs folder despite the index entry, native auto-load becomes more attractive.
+- Whether a hybrid is worth shipping: a small set of "always-load" files at `.claude/rules/` plus the broader docs-folder library for on-demand reads. The distil skill would need to route candidates between the two based on how universally relevant they are, and the human-readable docs folder would still be the canonical home.
+- Whether Claude Code grows a third option (e.g. lazy-glob-load on file pattern match, or auto-loading files inside a configured docs folder) that captures the best of both — load context files when the agent touches related code, ignore them otherwise.
 
 ## Hook reference correctness
 
